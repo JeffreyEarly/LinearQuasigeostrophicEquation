@@ -10,6 +10,7 @@
 		8165A4BA1803184E004C77F7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8165A4B91803184E004C77F7 /* Foundation.framework */; };
 		8165A4BD1803184E004C77F7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8165A4BC1803184E004C77F7 /* main.m */; };
 		8165A4C11803184E004C77F7 /* LinearQuasigeostrophicEquation.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8165A4C01803184E004C77F7 /* LinearQuasigeostrophicEquation.1 */; };
+		8165A4CA18031ED5004C77F7 /* GLNumericalModelingKit.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8165A4C918031ED5004C77F7 /* GLNumericalModelingKit.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,7 @@
 		8165A4BC1803184E004C77F7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		8165A4BF1803184E004C77F7 /* LinearQuasigeostrophicEquation-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LinearQuasigeostrophicEquation-Prefix.pch"; sourceTree = "<group>"; };
 		8165A4C01803184E004C77F7 /* LinearQuasigeostrophicEquation.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = LinearQuasigeostrophicEquation.1; sourceTree = "<group>"; };
+		8165A4C918031ED5004C77F7 /* GLNumericalModelingKit.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = GLNumericalModelingKit.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8165A4CA18031ED5004C77F7 /* GLNumericalModelingKit.dylib in Frameworks */,
 				8165A4BA1803184E004C77F7 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -65,6 +68,7 @@
 		8165A4B81803184E004C77F7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8165A4C918031ED5004C77F7 /* GLNumericalModelingKit.dylib */,
 				8165A4B91803184E004C77F7 /* Foundation.framework */,
 			);
 			name = Frameworks;
@@ -219,7 +223,17 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LinearQuasigeostrophicEquation/LinearQuasigeostrophicEquation-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(BUILT_PRODUCTS_DIR)/usr/local/include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/LinearQuasigeostrophicEquationWorkspace-gynfjxpwpzxqlyaxazrqjrjuznqr/Build/Products/Debug",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
 		};
@@ -228,7 +242,17 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LinearQuasigeostrophicEquation/LinearQuasigeostrophicEquation-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(BUILT_PRODUCTS_DIR)/usr/local/include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/LinearQuasigeostrophicEquationWorkspace-gynfjxpwpzxqlyaxazrqjrjuznqr/Build/Products/Debug",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Release;
 		};
@@ -251,6 +275,7 @@
 				8165A4C61803184E004C77F7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
