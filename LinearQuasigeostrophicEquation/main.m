@@ -21,24 +21,28 @@ int main (int argc, const char * argv[])
 		GLFloat T_QG = 12; // days
 		GLFloat L_QG = 47; // km
 		
-		NSLog(@"Define the dimensions of the problem.");
+		/************************************************************************************************/
+		/*		Define the problem dimensions															*/
+		/************************************************************************************************/
 		
 		// 256x128 at takes 11 second with optimized code.
 		GLDimension *xDim = [[GLDimension alloc] initPeriodicDimension: YES nPoints: 256 domainMin: -1500/L_QG length: 2000/L_QG];
 		xDim.name = @"x";
 		GLDimension *yDim = [[GLDimension alloc] initPeriodicDimension: YES nPoints: 128 domainMin: -500/L_QG length: 1000/L_QG];
 		yDim.name = @"y";
-		GLMutableDimension *tDim = [[GLMutableDimension alloc] initWithPoints: [NSArray arrayWithObject: [NSNumber numberWithDouble: 0.0]]];
+		GLMutableDimension *tDim = [[GLMutableDimension alloc] initWithPoints: @[@(0.0)]];
 		tDim.name = @"time";
 		
 		// Variables are always tied to a particular equation---so we create an equation object first.
 		GLEquation *equation = [[GLEquation alloc] init];
 		
-		NSArray *spatialDimensions = [NSArray arrayWithObjects: xDim, yDim, nil];
+		NSArray *spatialDimensions = @[xDim, yDim];
 		GLVariable *x = [GLVariable variableOfRealTypeFromDimension: xDim withDimensions: spatialDimensions forEquation: equation];
 		GLVariable *y = [GLVariable variableOfRealTypeFromDimension: yDim withDimensions: spatialDimensions forEquation: equation];
 		
-		NSLog(@"Create and cache the differential operators that we will be using");
+		/************************************************************************************************/
+		/*		Create and cache the differential operators we will need								*/
+		/************************************************************************************************/
 		
 		// At the moment we know that this is the spectral operators, although in the future we'll have to set this up explicitly.
 		GLSpectralDifferentialOperatorPool *diffOperators = [equation defaultDifferentialOperatorPoolForVariable: x];
@@ -55,7 +59,9 @@ int main (int argc, const char * argv[])
 		GLSpectralDifferentialOperator *diffX = [diffOperators differentialOperatorWithName: @"x"];
 		[diffOperators setDifferentialOperator: [[diffX negate] multiply: diffOp] forName: @"fFromY"];
 		
-		NSLog(@"Create the variable for the initial condition.");
+		/************************************************************************************************/
+		/*		Create the initial conditions															*/
+		/************************************************************************************************/
 		
 		// Want, gaussian = amplitude * exp( - ((x-x0)*(x-x0) + (y-y0)*(y-y0))/(length*length) );
 		GLFloat amplitude = 15.0/N_QG;
@@ -64,13 +70,19 @@ int main (int argc, const char * argv[])
 		GLVariable *r2 = [[x times: x] plus: [y times: y]];
 		GLVariable *gaussian = [[[r2 scalarMultiply: -1.0/(length*length)] exponentiate] scalarMultiply: amplitude];
 		
-		NSLog(@"Create a NetCDF to store the evolution of the gaussian");
+		/************************************************************************************************/
+		/*		Create a file to output data															*/
+		/************************************************************************************************/
 		
 		// Now we create a mutable variable in order to record the evolution of the Gaussian.
 		GLNetCDFFile *netcdfFile = [[GLNetCDFFile alloc] initWithURL: [NSURL URLWithString: @"/Users/jearly/Desktop/LinearQuasigeostrophy.nc"] forEquation: equation overwriteExisting: YES];
 		GLMutableVariable *sshHistory = [gaussian variableByAddingDimension: tDim];
 		sshHistory.name = @"SSH";
 		sshHistory = [netcdfFile addVariable: sshHistory];
+		
+		/************************************************************************************************/
+		/*		Estimate the time step size																*/
+		/************************************************************************************************/
 		
 		CGFloat cfl = 0.5;
 		CGFloat deltaX = xDim.domainLength / ( (GLFloat) xDim.nPoints );
@@ -79,10 +91,18 @@ int main (int argc, const char * argv[])
 		
 		NSLog(@"Time step the Gaussian with our equation: %d time steps", (int) (maxTime/timeStep));
 		
+		/************************************************************************************************/
+		/*		Create an integrator: dy/dt=f															*/
+		/************************************************************************************************/
+		
 		y = [gaussian diff: @"laplacianMinusOne"];
 		GLIntegrationOperation *integrator = [GLIntegrationOperation rungeKutta4AdvanceY: y stepSize: timeStep fFromY:^(GLVariable *yNew) {
 			return [yNew diff:@"fFromY"];
 		}];
+		
+		/************************************************************************************************/
+		/*		Now iterate! Stop every day to write out some data.										*/
+		/************************************************************************************************/
 		
 		for (GLFloat time = 0; time < maxTime; time += 1/T_QG)
 		{
@@ -91,7 +111,7 @@ int main (int argc, const char * argv[])
 				
 				NSLog(@"Logging day: %f, step size: %f.", (integrator.currentTime*T_QG), integrator.lastStepSize*T_QG);
 				// We're using spectral code, so it's possible (and is in fact the case) that the variable is not in the spatial domain.
-				[tDim addPoint: [NSNumber numberWithDouble: integrator.currentTime]];
+				[tDim addPoint: @(integrator.currentTime)];
 				GLVariable *eta = [[y diff: @"inverseLaplacianMinusOne"] spatialDomain];
 				[sshHistory concatenateWithLowerDimensionalVariable: eta alongDimensionAtIndex:0 toIndex: (tDim.nPoints-1)];
             }
