@@ -13,8 +13,6 @@ int main (int argc, const char * argv[])
 {
 	
 	@autoreleasepool {
-	    
-		[GLVariable setPrefersSpatialMultiplication: NO];
 		
 		// Reasonable parameters to nondimensionalize by.
 		GLFloat N_QG = 1.3; // cm
@@ -44,20 +42,14 @@ int main (int argc, const char * argv[])
 		/*		Create and cache the differential operators we will need								*/
 		/************************************************************************************************/
 		
-		// At the moment we know that this is the spectral operators, although in the future we'll have to set this up explicitly.
-		GLSpectralDifferentialOperatorPool *diffOperators = [equation defaultDifferentialOperatorPoolForVariable: x];
+		NSArray *spectralDimensions = [x dimensionsTransformedToBasis: x.differentiationBasis];
 		
-		// Create the operator xx+yy-1---this is how you compute y from eta
-		GLSpectralDifferentialOperator *laplacianMinusOne = [[diffOperators harmonicOperator] scalarAdd: -1.0];
-		[diffOperators setDifferentialOperator: laplacianMinusOne forName: @"laplacianMinusOne"];
+		GLLinearTransform *laplacian = [GLLinearTransform harmonicOperatorFromDimensions: spectralDimensions forEquation: equation];
+		GLLinearTransform *laplacianMinusOne = [laplacian plus: @(-1.0)];
+		GLLinearTransform *inverseLaplacianMinusOne = [laplacianMinusOne inverse];
 		
-		// Create the operator 1/(xx+yy-1)---this is how you compute eta from y.
-		GLSpectralDifferentialOperator *diffOp = [laplacianMinusOne scalarDivide: 1.0];
-		[diffOperators setDifferentialOperator: diffOp forName: @"inverseLaplacianMinusOne"];
-		
-		// Because this equation is completely linear, we can make an operator that computes f from y directly
-		GLSpectralDifferentialOperator *diffX = [diffOperators differentialOperatorWithName: @"x"];
-		[diffOperators setDifferentialOperator: [[diffX negate] multiply: diffOp] forName: @"fFromY"];
+		GLLinearTransform *diffX = [GLLinearTransform differentialOperatorWithDerivatives:@[@(1),@(0)] fromDimensions:spectralDimensions forEquation:equation];
+		GLLinearTransform *fFromY = [[diffX times: @(-1)] times: inverseLaplacianMinusOne];
 		
 		/************************************************************************************************/
 		/*		Create the initial conditions															*/
@@ -68,7 +60,7 @@ int main (int argc, const char * argv[])
 		GLFloat length = 80/L_QG;
 		
 		GLVariable *r2 = [[x times: x] plus: [y times: y]];
-		GLVariable *gaussian = [[[r2 scalarMultiply: -1.0/(length*length)] exponentiate] scalarMultiply: amplitude];
+		GLVariable *gaussian = [[[r2 times: @(-1.0/(length*length))] exponentiate] times: @(amplitude)];
 		
 		/************************************************************************************************/
 		/*		Create a file to output data															*/
@@ -95,9 +87,9 @@ int main (int argc, const char * argv[])
 		/*		Create an integrator: dy/dt=f															*/
 		/************************************************************************************************/
 		
-		y = [gaussian diff: @"laplacianMinusOne"];
-		GLIntegrationOperation *integrator = [GLIntegrationOperation rungeKutta4AdvanceY: y stepSize: timeStep fFromY:^(GLVariable *yNew) {
-			return [yNew diff:@"fFromY"];
+		y = [laplacianMinusOne transform:gaussian];
+		GLRungeKuttaOperation *integrator = [GLRungeKuttaOperation rungeKutta4AdvanceY: @[y] stepSize: timeStep fFromTY:^(GLScalar *t, NSArray *yNew) {
+			return @[[fFromY transform: yNew[0]]];
 		}];
 		
 		/************************************************************************************************/
@@ -107,12 +99,12 @@ int main (int argc, const char * argv[])
 		for (GLFloat time = 0; time < maxTime; time += 1/T_QG)
 		{
             @autoreleasepool {
-				y = [integrator stepForward: y toTime: time];
+				NSArray *yout = [integrator stepForwardToTime: time];
 				
 				NSLog(@"Logging day: %f, step size: %f.", (integrator.currentTime*T_QG), integrator.lastStepSize*T_QG);
 				// We're using spectral code, so it's possible (and is in fact the case) that the variable is not in the spatial domain.
 				[tDim addPoint: @(integrator.currentTime)];
-				GLVariable *eta = [[y diff: @"inverseLaplacianMinusOne"] spatialDomain];
+				GLVariable *eta = [[inverseLaplacianMinusOne transform: yout[0]] spatialDomain];
 				[sshHistory concatenateWithLowerDimensionalVariable: eta alongDimensionAtIndex:0 toIndex: (tDim.nPoints-1)];
             }
 		}

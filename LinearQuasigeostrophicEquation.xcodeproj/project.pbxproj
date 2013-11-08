@@ -221,6 +221,7 @@
 		8165A4C51803184E004C77F7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LinearQuasigeostrophicEquation/LinearQuasigeostrophicEquation-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -240,6 +241,7 @@
 		8165A4C61803184E004C77F7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LinearQuasigeostrophicEquation/LinearQuasigeostrophicEquation-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
