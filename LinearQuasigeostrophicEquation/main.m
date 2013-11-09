@@ -87,7 +87,7 @@ int main (int argc, const char * argv[])
 		/*		Create an integrator: dy/dt=f															*/
 		/************************************************************************************************/
 		
-		y = [laplacianMinusOne transform:gaussian];
+        y = [gaussian differentiateWithOperator: laplacianMinusOne];
 		GLRungeKuttaOperation *integrator = [GLRungeKuttaOperation rungeKutta4AdvanceY: @[y] stepSize: timeStep fFromTY:^(GLScalar *t, NSArray *yNew) {
 			return @[[fFromY transform: yNew[0]]];
 		}];
