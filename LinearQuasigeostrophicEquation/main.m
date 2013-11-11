@@ -24,9 +24,9 @@ int main (int argc, const char * argv[])
 		/************************************************************************************************/
 		
 		// 256x128 at takes 11 second with optimized code.
-		GLDimension *xDim = [[GLDimension alloc] initPeriodicDimension: YES nPoints: 256 domainMin: -1500/L_QG length: 2000/L_QG];
+		GLDimension *xDim = [[GLDimension alloc] initDimensionWithGrid: kGLPeriodicGrid nPoints:256 domainMin:-1500/L_QG length:2000/L_QG];
 		xDim.name = @"x";
-		GLDimension *yDim = [[GLDimension alloc] initPeriodicDimension: YES nPoints: 128 domainMin: -500/L_QG length: 1000/L_QG];
+		GLDimension *yDim = [[GLDimension alloc] initDimensionWithGrid: kGLPeriodicGrid nPoints:128 domainMin:-500/L_QG length:1000/L_QG];
 		yDim.name = @"y";
 		GLMutableDimension *tDim = [[GLMutableDimension alloc] initWithPoints: @[@(0.0)]];
 		tDim.name = @"time";
@@ -105,9 +105,7 @@ int main (int argc, const char * argv[])
 				// We're using spectral code, so it's possible (and is in fact the case) that the variable is not in the spatial domain.
 				[tDim addPoint: @(integrator.currentTime)];
 				GLVariable *eta = [[inverseLaplacianMinusOne transform: yout[0]] spatialDomain];
-                
-                // eta is actually fine here, it's just that writing to the netcdf file is somehow broken.
-				[sshHistory concatenateWithLowerDimensionalVariable: eta alongDimensionAtIndex:0 toIndex: (tDim.nPoints-1)];
+                [sshHistory concatenateWithLowerDimensionalVariable: eta alongDimensionAtIndex:0 toIndex: (tDim.nPoints-1)];
             }
 		}
 		
