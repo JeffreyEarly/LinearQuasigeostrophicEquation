@@ -47,10 +47,25 @@ int main (int argc, const char * argv[])
 		GLLinearTransform *laplacian = [GLLinearTransform harmonicOperatorFromDimensions: spectralDimensions forEquation: equation];
 		GLLinearTransform *laplacianMinusOne = [laplacian plus: @(-1.0)];
 		GLLinearTransform *inverseLaplacianMinusOne = [laplacianMinusOne inverse];
-		
+        
 		GLLinearTransform *diffX = [GLLinearTransform differentialOperatorWithDerivatives:@[@(1),@(0)] fromDimensions:spectralDimensions forEquation:equation];
 		GLLinearTransform *fFromY = [[diffX times: @(-1)] times: inverseLaplacianMinusOne];
 		
+        
+        //GLLinearTransform *diffOp = [GLLinearTransform differentialOperatorWithDerivatives: @[@(0),@(1)] fromDimensions: spectralDimensions forEquation: equation];
+        //GLLinearTransform *diffOp = [GLLinearTransform differentialOperatorOfOrder: 1 fromDimension: spectralDimensions.firstObject forEquation: equation];
+//        GLLinearTransform *diffOp = fFromY;
+//        
+//        [diffOp solve];
+//        GLFloat *val = diffOp.pointerValue;
+//        NSUInteger n = [diffOp.fromDimensions.lastObject nPoints];
+//        for (NSUInteger i=0; i<diffOp.nDataPoints; i++) {
+//            if (i%n==0) printf("\n");
+//            printf("%g ", val[i]);
+//        }
+//		
+//        return 0;
+        
 		/************************************************************************************************/
 		/*		Create the initial conditions															*/
 		/************************************************************************************************/
@@ -61,7 +76,7 @@ int main (int argc, const char * argv[])
 		
 		GLVariable *r2 = [[x times: x] plus: [y times: y]];
 		GLVariable *gaussian = [[[r2 times: @(-1.0/(length*length))] exponentiate] times: @(amplitude)];
-		
+        
 		/************************************************************************************************/
 		/*		Create a file to output data															*/
 		/************************************************************************************************/
@@ -105,6 +120,8 @@ int main (int argc, const char * argv[])
 				// We're using spectral code, so it's possible (and is in fact the case) that the variable is not in the spatial domain.
 				[tDim addPoint: @(integrator.currentTime)];
 				GLVariable *eta = [[inverseLaplacianMinusOne transform: yout[0]] spatialDomain];
+                
+                // eta is actually fine here, it's just that writing to the netcdf file is somehow broken.
 				[sshHistory concatenateWithLowerDimensionalVariable: eta alongDimensionAtIndex:0 toIndex: (tDim.nPoints-1)];
             }
 		}
