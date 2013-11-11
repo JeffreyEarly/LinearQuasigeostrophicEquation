@@ -50,21 +50,6 @@ int main (int argc, const char * argv[])
         
 		GLLinearTransform *diffX = [GLLinearTransform differentialOperatorWithDerivatives:@[@(1),@(0)] fromDimensions:spectralDimensions forEquation:equation];
 		GLLinearTransform *fFromY = [[diffX times: @(-1)] times: inverseLaplacianMinusOne];
-		
-        
-        //GLLinearTransform *diffOp = [GLLinearTransform differentialOperatorWithDerivatives: @[@(0),@(1)] fromDimensions: spectralDimensions forEquation: equation];
-        //GLLinearTransform *diffOp = [GLLinearTransform differentialOperatorOfOrder: 1 fromDimension: spectralDimensions.firstObject forEquation: equation];
-//        GLLinearTransform *diffOp = fFromY;
-//        
-//        [diffOp solve];
-//        GLFloat *val = diffOp.pointerValue;
-//        NSUInteger n = [diffOp.fromDimensions.lastObject nPoints];
-//        for (NSUInteger i=0; i<diffOp.nDataPoints; i++) {
-//            if (i%n==0) printf("\n");
-//            printf("%g ", val[i]);
-//        }
-//		
-//        return 0;
         
 		/************************************************************************************************/
 		/*		Create the initial conditions															*/
