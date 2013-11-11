@@ -23,7 +23,7 @@ int main (int argc, const char * argv[])
 		/*		Define the problem dimensions															*/
 		/************************************************************************************************/
 		
-		// 256x128 at takes 11 second with optimized code.
+		// 256x128 at takes ~7 second on my iMac including writing the data to the NetCDF file.
 		GLDimension *xDim = [[GLDimension alloc] initDimensionWithGrid: kGLPeriodicGrid nPoints:256 domainMin:-1500/L_QG length:2000/L_QG];
 		xDim.name = @"x";
 		GLDimension *yDim = [[GLDimension alloc] initDimensionWithGrid: kGLPeriodicGrid nPoints:128 domainMin:-500/L_QG length:1000/L_QG];
