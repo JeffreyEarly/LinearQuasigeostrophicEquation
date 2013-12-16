@@ -35,8 +35,8 @@ int main (int argc, const char * argv[])
 		GLEquation *equation = [[GLEquation alloc] init];
 		
 		NSArray *spatialDimensions = @[xDim, yDim];
-		GLVariable *x = [GLVariable variableOfRealTypeFromDimension: xDim withDimensions: spatialDimensions forEquation: equation];
-		GLVariable *y = [GLVariable variableOfRealTypeFromDimension: yDim withDimensions: spatialDimensions forEquation: equation];
+		GLFunction *x = [GLFunction functionOfRealTypeFromDimension: xDim withDimensions: spatialDimensions forEquation: equation];
+		GLFunction *y = [GLFunction functionOfRealTypeFromDimension: yDim withDimensions: spatialDimensions forEquation: equation];
 		
 		/************************************************************************************************/
 		/*		Create and cache the differential operators we will need								*/
@@ -59,8 +59,8 @@ int main (int argc, const char * argv[])
 		GLFloat amplitude = 15.0/N_QG;
 		GLFloat length = 80/L_QG;
 		
-		GLVariable *r2 = [[x times: x] plus: [y times: y]];
-		GLVariable *gaussian = [[[r2 times: @(-1.0/(length*length))] exponentiate] times: @(amplitude)];
+		GLFunction *r2 = [[x times: x] plus: [y times: y]];
+		GLFunction *gaussian = [[[r2 times: @(-1.0/(length*length))] exponentiate] times: @(amplitude)];
         
 		/************************************************************************************************/
 		/*		Create a file to output data															*/
@@ -104,7 +104,7 @@ int main (int argc, const char * argv[])
 				NSLog(@"Logging day: %f, step size: %f.", (integrator.currentTime*T_QG), integrator.lastStepSize*T_QG);
 				// We're using spectral code, so it's possible (and is in fact the case) that the variable is not in the spatial domain.
 				[tDim addPoint: @(integrator.currentTime)];
-				GLVariable *eta = [[inverseLaplacianMinusOne transform: yout[0]] spatialDomain];
+				GLFunction *eta = [[inverseLaplacianMinusOne transform: yout[0]] spatialDomain];
                 [sshHistory concatenateWithLowerDimensionalVariable: eta alongDimensionAtIndex:0 toIndex: (tDim.nPoints-1)];
             }
 		}
